@@ -35,6 +35,15 @@ class request_db(database):
             '''
         return super().read_(select_request)
 
+    def request_select_one(self, output_fields, table, condition_field, condition, order_by):
+        select_request = f'''
+        SELECT {output_fields}
+        FROM {table}
+        WHERE {condition_field} = '{condition}'
+        ORDER BY {order_by} DESC LIMIT 1
+        '''
+        return super().read_(select_request)
+
     def request_select_join(self,
                             output_fields,
                             from_table,
@@ -54,8 +63,7 @@ class request_db(database):
             SELECT {output_fields}
             FROM {from_table}
             INNER JOIN {join_table} on 
-            {from_table}.id = {join_table}.{'CategoryId' if join_table == 'relationCategory' else 'KeywordsId'}
-            INNER JOIN users on {join_table}.UserId = users.id
+            {from_table}.id = {join_table}.u_id
             WHERE {condition_field} = '{condition}'
             '''
         else:
@@ -63,15 +71,14 @@ class request_db(database):
             SELECT {output_fields}
             FROM {from_table}
             INNER JOIN {join_table} on 
-            {from_table}.id = {join_table}.{'CategoryId' if join_table == 'relationCategory' else 'KeywordsId'}
-            INNER JOIN users on {join_table}.UserId = users.id
+            {from_table}.id = {join_table}.u_id
             '''
         return super().read_(request_select)
 
     def request_insert(self, table, fields, *values):
         insert_request = f'''
         INSERT INTO {table} ({fields})
-        VALUES {values}
+        VALUES '{values}'
         '''
         super().entry_(insert_request)
         return super().read_(f'SELECT id FROM {table} ORDER BY id DESC LIMIT 1')
@@ -79,6 +86,30 @@ class request_db(database):
     def request_insert_one(self, table, field, value):
         insert_request = f'''
         INSERT INTO {table} ({field}) VALUES ('{value}')
+        '''
+        super().entry_(insert_request)
+
+    def request_insert_two(self, table, fields, value_1, value_2):
+        insert_request = f'''
+        INSERT INTO {table} ({fields})
+         VALUES ('{value_1}', '{value_2}')
+        '''
+        super().entry_(insert_request)
+        return super().read_(f'SELECT id FROM {table} ORDER BY id DESC LIMIT 1')
+
+    def request_insert_three(self, table, fields, value_1, value_2, value_3):
+        insert_request = f'''
+        INSERT INTO {table} ({fields})
+         VALUES ('{value_1}', '{value_2}', '{value_3}')
+        '''
+        super().entry_(insert_request)
+        return super().read_(f'SELECT id FROM {table} ORDER BY id DESC LIMIT 1')
+
+    def request_update(self, table, field_1, value_1, field_2, value_2):
+        insert_request = f'''
+        UPDATE {table}
+        SET {field_1} = '{value_1}'
+        WHERE {field_2} = '{value_2}'
         '''
         super().entry_(insert_request)
 
