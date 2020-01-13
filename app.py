@@ -13,8 +13,6 @@ def first():
     dct = {}
     response = []
     cities = db.request_select_join('*', 'Users', 'Actions')
-    print(cities[0])
-    print(cities[0][0])
     for item in cities:
         if item[2] in dct.keys():
             dct[item[2]] += 1
